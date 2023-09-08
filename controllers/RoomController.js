@@ -47,7 +47,7 @@ const RoomController = {
         return res.status(404).json({ error: 'Room not found' });
       }
       
-      res.json({ message: 'Joined the room successfully' , roomId});
+      res.json({ message: 'Joined the room successfully' , data: room});
     } catch (error) {
       res.status(500).json({ error: 'Failed to join room' });
     }

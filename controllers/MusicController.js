@@ -47,32 +47,12 @@ const getAllAudio = async (req, res) => {
     }
 };
 
-// const getAudioById = async (req, res) => {
-//     try {
-//         const { uniqueId } = req.params;
-//         console.log('Unique ID:', uniqueId); // Add this line for debugging
-//         const audio = await MusicModel.findOne({ uniqueId });
-
-//         if (!audio) {
-//             return res.status(404).json({ message: 'Audio not found' });
-//         }
-
-//         res.json(audio);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: 'Internal server error' });
-//     }
-// };
-
-
 const getAudioById = async (req, res) => {
     try {
       const { uniqueId } = req.params;
       const result = await MusicModel.findOne({ uniqueId });
       const filePath = result.path
-      console.log(uniqueId)
-      console.log(filePath.path)
-  
+        
       if (fs.existsSync(filePath)) {
         res.setHeader('Content-Type', 'audio/mpeg');
         res.setHeader('Content-Disposition', `inline; uniqueId="${uniqueId}"`);
