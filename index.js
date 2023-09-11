@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./connections/db.js'); 
 const RoomRouter = require('./router/RoomRouter.js');
-const MusicRouter = require('./router/MusicRouter.js')
+const MusicRouter = require('./router/MusicRouter.js');
+const AuthRouter = require('./router/AuthRouter.js')
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/room', RoomRouter);
 app.use('/music', MusicRouter);
+app.use('/auth', AuthRouter);
 
 connectDB();
 
