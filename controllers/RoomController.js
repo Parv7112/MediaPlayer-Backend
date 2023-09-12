@@ -54,14 +54,12 @@ const RoomController = {
 
       await room.save();
 
-      // Check if participants array exists and add the participant
       if (!room.participants) {
         room.participants = [uid];
       } else if (!room.participants.includes(uid)) {
         room.participants.push(uid);
       }
 
-      // Save the updated room data
       await room.save();
 
       res.json({ message: 'Joined the room successfully', data: room });
@@ -74,49 +72,66 @@ const RoomController = {
   addParticipant: async (req, res) => {
     try {
       const { roomId, participant } = req.body;
-  
-      // Find the room by its ID
+
       const room = await RoomModel.findOne({ roomId });
-  
+
       if (!room) {
         return res.status(404).json({ error: 'Room not found' });
       }
-  
-      // Check if the participant's email exists in the AuthModel
+
       const userWithEmail = await AuthModel.findOne({ email: participant.email });
-  
+
       if (!userWithEmail) {
         return res.status(404).json({ error: 'User with email not found' });
       }
-  
-      // Now that you have the user document with email, you can access their uid
+
       const uid = userWithEmail.uid;
-  
-      // Add the user's UID, displayName, and email to the participants array
+
       if (!room.participants) {
         room.participants = [{ uid, displayName: participant.displayName, email: participant.email }];
       } else {
-        // Check if the participant already exists in the array
         const existingParticipant = room.participants.find((p) => p.uid === uid);
-  
+
         if (!existingParticipant) {
           room.participants.push({ uid, displayName: participant.displayName, email: participant.email });
         }
       }
-  
-      // Save the updated room document
+
       await room.save();
-  
+
       res.json({ success: true, message: 'Participant added to the room' });
     } catch (error) {
       console.error('Error adding participant:', error);
       res.status(500).json({ success: false, message: 'Failed to add participant' });
     }
-  },    
-  
-  
-  
+  },
 
+  removeParticipant: async (req, res) => {
+    try {
+      const { roomId, participant } = req.body;
+
+      const room = await RoomModel.findOne({ roomId });
+
+      if (!room) {
+        return res.status(404).json({ error: 'Room not found' });
+      }
+
+      const participantIndex = room.participants.findIndex((p) => p.email === participant.email);
+
+      if (participantIndex === -1) {
+        return res.status(404).json({ error: 'Participant not found in the room' });
+      }
+
+      room.participants.splice(participantIndex, 1);
+
+      await room.save();
+
+      res.json({ success: true, message: 'Participant removed from the room' });
+    } catch (error) {
+      console.error('Error removing participant:', error);
+      res.status(500).json({ success: false, message: 'Failed to remove participant' });
+    }
+  },
 };
 
 function generateRandomRoomId() {

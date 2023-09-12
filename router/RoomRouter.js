@@ -6,6 +6,7 @@ router.post('/createRoom', RoomController.createRoom);
 router.post('/joinRoom', RoomController.joinRoom);
 router.get('/getRoom/:roomId', RoomController.getRoom);
 router.post('/addParticipant', RoomController.addParticipant);
+router.post('/removeParticipant', RoomController.removeParticipant);
 
 
 module.exports = router;
