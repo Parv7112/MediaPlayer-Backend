@@ -13,28 +13,33 @@ exports.sendUserData = (req, res) => {
   console.log('Received ID token:', idToken);
   console.log('Received userData:', userData);
 
-  // Verify the Firebase ID token
   admin
     .auth()
     .verifyIdToken(idToken)
     .then(async (decodedToken) => {
       const uid = decodedToken.uid;
+      const email = userData.email;
 
-      // Create a new instance of AuthModel with user data
-      const newAuth = new AuthModel({
-        uid: uid,
-        displayName: userData.displayName,
-        email: userData.email,
-        // Add any other user data fields here
-      });
+      // Check if a user with the same email already exists in the database
+      const existingUser = await AuthModel.findOne({ email });
 
-      // Save the newAuth instance to the database
-      await newAuth.save();
+      if (existingUser) {
+        // If a user with the same email exists, do not save the data again
+        res.json({ success: false, message: 'User with this email already exists' });
+      } else {
+        // If the user with the email doesn't exist, save the data
+        const newAuth = new AuthModel({
+          uid: uid,
+          displayName: userData.displayName,
+          email: email,
+        });
 
-      res.json({ success: true, message: 'User data saved successfully' });
+        await newAuth.save();
+
+        res.json({ success: true, message: 'User data saved successfully' });
+      }
     })
     .catch((error) => {
-      // Handle error
       console.error('Error verifying Firebase ID token:', error);
       res.status(401).json({ success: false, message: 'Unauthorized' });
     });

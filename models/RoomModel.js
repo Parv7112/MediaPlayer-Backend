@@ -14,6 +14,10 @@ const RoomSchema = new Schema({
     type: String,
     required: true,
   },
+  participants: {
+    type: Array,
+    default: [],
+  }
 });
 
 const RoomModel = mongoose.model('Room', RoomSchema);
