@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const socketIo = require('socket.io');
 const connectDB = require('./connections/db.js'); 
 const RoomRouter = require('./router/RoomRouter.js');
 const MusicRouter = require('./router/MusicRouter.js');
@@ -7,6 +8,7 @@ const AuthRouter = require('./router/AuthRouter.js')
 const bodyParser = require('body-parser');
 
 const app = express();
+const io = socketIo(server);
 app.use(cors({
   origin: 'http://localhost:3000',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -21,6 +23,8 @@ app.use('/auth', AuthRouter);
 
 connectDB();
 
-app.listen(4000, () => {
-  console.log(`Server is running on http://localhost:4000`);
+const port = 4000
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}/`);
 });
