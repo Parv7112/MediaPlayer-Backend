@@ -10,7 +10,7 @@ exports.sendUserData = (req, res) => {
   const idToken = req.body.token;
   const userData = req.body.userData;
 
-  console.log('Received ID token:', idToken);
+  // console.log('Received ID token:', idToken);
   console.log('Received userData:', userData);
 
   admin
