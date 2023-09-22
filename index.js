@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http'); // Import the http module
+const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -11,7 +11,7 @@ const AuthRouter = require('./router/AuthRouter.js');
 const app = express();
 const server = http.createServer(app);
 
-const port = 4000
+const port = 4000;
 
 app.use(cors({
   origin: 'http://localhost:3000',
@@ -19,12 +19,11 @@ app.use(cors({
   credentials: true,
 }));
 
-// Pass the 'server' to the socket.io constructor
 const io = socketIo(server, {
   cors: {
-    origin: {port},
-    methods: ["GET", "POST"]
-  }
+    origin: 'http://localhost:3000', // Replace with your frontend's URL
+    methods: ["GET", "POST"],
+  },
 });
 
 app.use(bodyParser.json());
@@ -36,24 +35,28 @@ app.use('/auth', AuthRouter);
 connectDB();
 
 io.on('connection', (socket) => {
-  console.log('User connected to socket:', socket.id);
+  const { id: socketId } = socket;
 
-  // Listen for the 'joinRoom' event
+  console.log(`User connected to socket: ${socketId}`);
+
   socket.on('joinRoom', (roomId) => {
-    // Join the room using socket.io rooms
     socket.join(roomId);
-    // socket.to(roomId).emit(currentSong)
-    console.log(`User ${socket.id} joined room ${roomId}`);
+    console.log(`User ${socketId} joined room ${roomId}`);
   });
 
-  // Handle other socket events as needed
+  socket.on('playSong', ({ roomId, songIndex }) => {
+    console.log('Received playSong event:', { roomId, songIndex });
+    // Broadcast the 'playSong' event to all sockets in the same room
+    socket.to(roomId).emit('playSong', { roomId, songIndex });
 
-  // Listen for disconnection
+    console.log(`User ${socket.id} played song in room ${roomId}, songIndex ${songIndex}`);
+  });
+
   socket.on('disconnect', () => {
-    console.log('User disconnected from socket:', socket.id);
+    console.log(`User disconnected from socket: ${socketId}`);
   });
 });
 
-server.listen(4000, () => {
-  console.log(`Server is running on ${port}`);
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
